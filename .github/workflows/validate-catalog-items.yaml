@@ -1,0 +1,91 @@
+# Validate Morpheus Catalog Items
+#
+# PT: Executa verificações de qualidade em cada item de catálogo modificado em PRs e pushes.
+# EN: Runs quality checks against each modified catalog item on PRs and pushes to main.
+
+name: Validate Catalog Items
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'catalog_items/**/*.tf'
+      - '.github/skills/**'
+      - '.github/prompts/**'
+      - '.github/agents/**'
+  pull_request:
+    paths:
+      - 'catalog_items/**/*.tf'
+      - '.github/skills/**'
+      - '.github/prompts/**'
+      - '.github/agents/**'
+
+jobs:
+  validate:
+    name: Terraform Format and Validate
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ">= 1.11.0"
+
+      - name: Find catalog item directories
+        id: dirs
+        run: |
+          # Find all directories that contain .tf files under catalog_items/
+          dirs=$(find catalog_items -name '*.tf' -not -name '*.tfvars*' | xargs -I{} dirname {} | sort -u | tr '\n' ' ')
+          echo "Found directories: $dirs"
+          echo "dirs=$dirs" >> "$GITHUB_OUTPUT"
+
+      - name: Terraform Format Check
+        run: |
+          echo "=== Checking Terraform formatting ==="
+          terraform fmt -check -recursive catalog_items/
+        # EN: Fails if any .tf file under catalog_items/ is not properly formatted.
+        # PT: Falha se algum arquivo .tf não estiver formatado corretamente.
+
+      - name: Terraform Init and Validate (per directory)
+        env:
+          # EN: Dummy values satisfy provider schema during validation — no real appliance is called.
+          # PT: Valores fictícios satisfazem o schema do provider na validação — nenhum appliance é chamado.
+          TF_VAR_morpheus_url: "https://morpheus.example.com"
+          TF_VAR_morpheus_access_token: "dummy-token-for-validation-only"
+        run: |
+          set -e
+          failed=0
+
+          for dir in ${{ steps.dirs.outputs.dirs }}; do
+            echo ""
+            echo "=== Validating: $dir ==="
+
+            echo "--- terraform init ---"
+            if ! terraform -chdir="$dir" init -backend=false -input=false -no-color; then
+              echo "FAIL: init failed in $dir"
+              failed=1
+              continue
+            fi
+
+            echo "--- terraform validate ---"
+            if ! terraform -chdir="$dir" validate -no-color; then
+              echo "FAIL: validate failed in $dir"
+              failed=1
+              continue
+            fi
+
+            echo "PASS: $dir"
+          done
+
+          if [ "$failed" -ne 0 ]; then
+            echo ""
+            echo "One or more catalog item directories failed validation. Fix errors before merging."
+            exit 1
+          fi
+
+          echo ""
+          echo "All catalog item directories passed validation."

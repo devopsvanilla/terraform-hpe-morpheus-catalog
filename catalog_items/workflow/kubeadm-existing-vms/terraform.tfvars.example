@@ -1,0 +1,27 @@
+# Copy this file to terraform.tfvars and set real values.
+# Nunca versionar credenciais reais.
+
+morpheus_url          = "https://your-morpheus-appliance.example.com"
+morpheus_access_token = "replace-me"
+
+catalog_item_name        = "kubeadm-existing-vms"
+catalog_item_description = "Install Kubernetes with kubeadm on existing Morpheus VMs"
+catalog_item_visibility  = "private"
+catalog_item_category    = "kubernetes"
+catalog_item_labels      = ["kubernetes", "kubeadm", "existing-vms"]
+catalog_item_enabled     = true
+catalog_item_featured    = false
+
+# IDs criados pelo modulo foundations/kubeadm-existing-vms.
+# Apos aplicar o foundations, copie os outputs para ca:
+#   workflow_id = <output.workflow_id>
+#   form_id     = <output.form_id>
+
+workflow_id = 1000
+form_id     = 2000
+
+# Deixe vazio quando usar form_id (campos gerenciados pelo formulario).
+option_type_ids = []
+
+context_type        = "server"
+catalog_content_file = "content/catalog-content.md"

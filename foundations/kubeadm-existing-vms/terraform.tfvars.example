@@ -1,0 +1,15 @@
+# Copie para terraform.tfvars e preencha os valores reais.
+# Nunca versionar credenciais reais.
+
+morpheus_url          = "https://your-morpheus-appliance.example.com"
+morpheus_access_token = "replace-me"
+
+workflow_name        = "kubeadm-existing-vms"
+workflow_description = "Installs Kubernetes with kubeadm on existing Morpheus VMs"
+workflow_visibility  = "public"
+workflow_platform    = "linux"
+workflow_labels      = ["kubernetes", "kubeadm", "existing-vms"]
+
+# Opcional: ID do cloud padrao para pre-filtrar os seletores de VM no formulario.
+# Se null, o usuario seleciona o cloud no momento do request.
+# cloud_id = 1

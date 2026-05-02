@@ -1,0 +1,5 @@
+# Local Terraform variable values (never commit secrets)
+**/terraform.tfvars
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfplan

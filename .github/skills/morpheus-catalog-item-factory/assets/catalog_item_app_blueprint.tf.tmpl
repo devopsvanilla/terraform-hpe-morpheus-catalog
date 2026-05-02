@@ -1,0 +1,25 @@
+resource "hpe_morpheus_catalog_item_app_blueprint" "this" {
+  name         = var.catalog_item_name
+  description  = var.catalog_item_description
+  visibility   = var.catalog_item_visibility
+  blueprint_id = var.blueprint_id
+
+  # Required by provider for app blueprint catalog items.
+  app_spec = file(var.app_spec_file)
+
+  category        = var.catalog_item_category
+  enabled         = var.catalog_item_enabled
+  featured        = var.catalog_item_featured
+  labels          = var.catalog_item_labels
+  option_type_ids = var.option_type_ids
+  form_id         = var.form_id
+  content         = file(var.catalog_content_file)
+}
+
+output "catalog_item_id" {
+  value = hpe_morpheus_catalog_item_app_blueprint.this.id
+}
+
+output "catalog_item_name" {
+  value = hpe_morpheus_catalog_item_app_blueprint.this.name
+}

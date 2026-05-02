@@ -1,0 +1,23 @@
+resource "hpe_morpheus_catalog_item_workflow" "this" {
+  name        = var.catalog_item_name
+  description = var.catalog_item_description
+  visibility  = var.catalog_item_visibility
+  workflow_id = var.workflow_id
+
+  category        = var.catalog_item_category
+  enabled         = var.catalog_item_enabled
+  featured        = var.catalog_item_featured
+  labels          = var.catalog_item_labels
+  option_type_ids = var.option_type_ids
+  form_id         = var.form_id
+  context_type    = var.context_type
+  content         = file(var.catalog_content_file)
+}
+
+output "catalog_item_id" {
+  value = hpe_morpheus_catalog_item_workflow.this.id
+}
+
+output "catalog_item_name" {
+  value = hpe_morpheus_catalog_item_workflow.this.name
+}
